@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>beforeRunningCommand</key>
+	<string>nop</string>
+	<key>command</key>
+	<string>CSCOPE_COMMAND=8 python "$TM_BUNDLE_SUPPORT/bin/cscope_bindings.py"</string>
+	<key>input</key>
+	<string>selection</string>
+	<key>keyEquivalent</key>
+	<string>^i</string>
+	<key>name</key>
+	<string>Find files #including this file</string>
+	<key>output</key>
+	<string>showAsHTML</string>
+	<key>uuid</key>
+	<string>E0498A6D-0BEA-4CA5-B3B8-91C2F5148013</string>
+</dict>
+</plist>

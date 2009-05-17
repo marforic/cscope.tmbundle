@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>name</key>
+	<string>Cscope</string>
+	<key>ordering</key>
+	<array>
+		<string>16940E03-32C5-4EAF-AEA6-7F43EC44BF05</string>
+		<string>71C0685B-8A3F-4D3A-A873-D4B4369650D8</string>
+		<string>12F56EB0-84DD-47BE-A557-0BCFB48314BD</string>
+		<string>E3E69478-FA4E-4D31-82AF-5C83A92393D3</string>
+		<string>E50B222B-4F9F-46BC-B000-229D50C1FFDE</string>
+		<string>E0498A6D-0BEA-4CA5-B3B8-91C2F5148013</string>
+	</array>
+	<key>uuid</key>
+	<string>F80891F6-93CD-4B0E-A04B-677526925D10</string>
+</dict>
+</plist>
