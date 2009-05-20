@@ -32,6 +32,7 @@ print '<h1>CSCOPE - ', command_names[int(CSCOPE_COMMAND)], search, '</h1>'
 os.chdir(os.environ['TM_PROJECT_DIRECTORY'])
 cscope_out, cscope_in = popen2(CSCOPE_BIN + ' -L -' + CSCOPE_COMMAND + '"' + search + '"')
 
+# TODO: João add the javascript
 print '<table><tr><th>File</th><th>Function</th><th>Line #</th><th>Line</th></tr>'
 for i in cscope_out.readlines():
 	f, func, line, rest = i.split(' ', 3)
