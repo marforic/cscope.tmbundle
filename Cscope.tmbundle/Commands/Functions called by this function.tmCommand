@@ -7,11 +7,11 @@
 	<key>command</key>
 	<string>CSCOPE_COMMAND=2 python "$TM_BUNDLE_SUPPORT/bin/cscope_bindings.py"</string>
 	<key>fallbackInput</key>
-	<string>document</string>
+	<string>word</string>
 	<key>input</key>
 	<string>selection</string>
 	<key>keyEquivalent</key>
-	<string>^f</string>
+	<string>^c</string>
 	<key>name</key>
 	<string>Functions called by this function</string>
 	<key>output</key>

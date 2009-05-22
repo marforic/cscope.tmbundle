@@ -6,10 +6,12 @@
 	<string>nop</string>
 	<key>command</key>
 	<string>CSCOPE_COMMAND=3 python "$TM_BUNDLE_SUPPORT/bin/cscope_bindings.py"</string>
+	<key>fallbackInput</key>
+	<string>word</string>
 	<key>input</key>
 	<string>selection</string>
 	<key>keyEquivalent</key>
-	<string>^l</string>
+	<string>^c</string>
 	<key>name</key>
 	<string>Find functions calling</string>
 	<key>output</key>
