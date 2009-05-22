@@ -1,3 +1,4 @@
+#encoding: utf-8
 #!/usr/bin/python
 
 import os
@@ -7,16 +8,28 @@ TM_BUNDLE_PATH = os.environ['TM_BUNDLE_SUPPORT']
 CSCOPE_BIN = '"' + TM_BUNDLE_PATH + '/bin/cscope"'
 CSCOPE_COMMAND = os.environ['CSCOPE_COMMAND']
 
-if int(CSCOPE_COMMAND) == -1:
+def build():
 	os.chdir(os.environ['TM_PROJECT_DIRECTORY'])
-	os.system("find . -name \\*\.c -o -name \\*\.h -o -name \\*\.m -o -name \\*\.java > cscope.files;" + 
-				CSCOPE_BIN + " -b;" + "echo \"Cscope DB built\"")
-	exit(0)
+	find_cmd = "find . -name \\*\.c -o -name \\*\.h -o -name \\*\.m -o -name \\*\.java -o -name \\*\.py > tm_cscope.files;"
+	os.system(find_cmd + CSCOPE_BIN + " -b;")
+	print 'Cscope DB built'
 
+if int(CSCOPE_COMMAND) == -1:
+  build()
+  exit(0)
 
-command_names = ["Find C Symbol", "Find global definition", "Functions called by", "Functions calling this", "", "", "", "", "Find files including"]
+command_names = ["Find C Symbol", "Find global definition", "Functions called by", "Functions calling", "", "", "", "", "Find files including"]
 
-print '<html><head><title>CSCOPE Output</title></head><body>'
+print """
+<html>
+  <head>
+    <title>CSCOPE Output</title>
+    <style>
+      tr, td { font-size: 100%; padding: .25em; }
+    </style>
+  </head>
+  <body>
+"""
 
 if int(CSCOPE_COMMAND) in range(0,8):
 	try:
@@ -27,13 +40,18 @@ if int(CSCOPE_COMMAND) in range(0,8):
 else:
 	search = os.environ['TM_FILENAME']
 
-print '<h1>CSCOPE - ', command_names[int(CSCOPE_COMMAND)], search, '</h1>'
+print '<h2>CSCOPE - ', command_names[int(CSCOPE_COMMAND)], search, '</h2>'
 
-os.chdir(os.environ['TM_PROJECT_DIRECTORY'])
-cscope_out, cscope_in = popen2(CSCOPE_BIN + ' -L -' + CSCOPE_COMMAND + '"' + search + '"')
+
+CSCOPE_DIR = os.environ.get('TM_CSCOPE_DIR') or os.environ['TM_PROJECT_DIRECTORY']
+os.chdir(CSCOPE_DIR)
+
+cmd = CSCOPE_BIN + ' -d -L -' + CSCOPE_COMMAND + '"' + search + '"'
+# print cmd
+cscope_out, cscope_in = popen2(cmd)
 
 # TODO: João add the javascript
-print '<table><tr><th>File</th><th>Function</th><th>Line #</th><th>Line</th></tr>'
+print '<table><tr><th>File</th><th>Function</th></tr>'
 for i in cscope_out.readlines():
 	f, func, line, rest = i.split(' ', 3)
 	if func != 'NULL':
@@ -41,8 +59,8 @@ for i in cscope_out.readlines():
 		func = func.replace('>', '&gt;')
 	else:
 		func = '---'
-	link = '<a href="txmt://open?url=file://' + os.environ['TM_PROJECT_DIRECTORY'] + '/' + f + '&line=' + line + '">'
-	print '<tr><td>', link, f, '</a></td><td>', func, '</td><td>', line, '</td><td>', rest, '</td></tr>'
+	link = '<a href="txmt://open?url=file://' + CSCOPE_DIR + '/' + f + '&line=' + line + '">'
+	print '<tr><td>', link, f + ':' + line, '</a></td><td>', func, '</td></tr>'
 print '</table>'
 
 print '</body></html>'
