@@ -73,9 +73,12 @@ def choice(cscope_out):
     paths.append((path, full))
       
   if not paths:
-    return False    
+    raise LookupError
   
   choice = dialog.menu(paths)
+  
+  if not choice:
+    raise TypeError
   
   return choice
 
@@ -94,8 +97,8 @@ if __name__ == '__main__':
   try:
     search = os.environ.get('TM_SELECTED_TEXT') or os.environ['TM_CURRENT_WORD']
   except:
-    print 'No word selected.'
-    exit(0)
+    print 'No word selected'
+    exit(1)
 
   # TODO: handle filenames
   # search = os.environ['TM_FILENAME']
@@ -104,6 +107,17 @@ if __name__ == '__main__':
 
   # TODO optionally configure HTML output??
   # render_html(search, cscope_out)
+  
+  try:
+    path, line = choice(cscope_out)
+  except LookupError:
+    print 'Can\'t find "%s"' % search
+    exit(1)
+  except TypeError:
+    print 'No file selected'
+    exit(1)
 
-  path, line = choice(cscope_out)  
   tm_open(path, line)
+      
+  # TODO doctests
+  
