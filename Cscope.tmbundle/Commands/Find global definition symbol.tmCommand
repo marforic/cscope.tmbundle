@@ -11,7 +11,7 @@
 	<key>input</key>
 	<string>selection</string>
 	<key>keyEquivalent</key>
-	<string>^g</string>
+	<string>^c</string>
 	<key>name</key>
 	<string>Find global definition symbol</string>
 	<key>output</key>
