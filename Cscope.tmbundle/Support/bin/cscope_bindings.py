@@ -67,13 +67,21 @@ def choice(cscope_out):
   import dialog
 
   paths = []
-  for i in cscope_out.readlines():
+  for i in cscope_out.readlines():    
     path, func, line, rest = i.split(' ', 3)
+    
+    # filter out current file
+    if path in os.environ['TM_FILEPATH'] and line == os.environ['TM_LINE_NUMBER']:
+      continue    
+    
     full = (path, line)
-    paths.append((path, full))
+    paths.append((path + ':' + line, full))
       
   if not paths:
     raise LookupError
+  
+  # TODO sort global def to top, local appearances
+  paths.sort(key=lambda x: x[0])
   
   choice = dialog.menu(paths)
   
