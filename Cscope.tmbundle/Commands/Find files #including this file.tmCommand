@@ -8,6 +8,8 @@
 	<string>CSCOPE_COMMAND=8 python "$TM_BUNDLE_SUPPORT/bin/cscope_bindings.py"</string>
 	<key>input</key>
 	<string>selection</string>
+	<key>keyEquivalent</key>
+	<string>^i</string>
 	<key>name</key>
 	<string>Find files #including this file</string>
 	<key>output</key>
