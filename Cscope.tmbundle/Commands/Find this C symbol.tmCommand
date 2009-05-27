@@ -9,13 +9,13 @@
 	<key>fallbackInput</key>
 	<string>word</string>
 	<key>input</key>
-	<string>selection</string>
+	<string>none</string>
 	<key>keyEquivalent</key>
 	<string>^c</string>
 	<key>name</key>
 	<string>Find this C symbol</string>
 	<key>output</key>
-	<string>showAsHTML</string>
+	<string>showAsTooltip</string>
 	<key>scope</key>
 	<string>source</string>
 	<key>uuid</key>

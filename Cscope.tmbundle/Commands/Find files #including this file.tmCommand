@@ -11,7 +11,7 @@
 	<key>name</key>
 	<string>Find files #including this file</string>
 	<key>output</key>
-	<string>showAsHTML</string>
+	<string>showAsTooltip</string>
 	<key>uuid</key>
 	<string>E0498A6D-0BEA-4CA5-B3B8-91C2F5148013</string>
 </dict>

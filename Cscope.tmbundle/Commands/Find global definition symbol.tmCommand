@@ -15,7 +15,7 @@
 	<key>name</key>
 	<string>Find global definition symbol</string>
 	<key>output</key>
-	<string>showAsHTML</string>
+	<string>showAsTooltip</string>
 	<key>scope</key>
 	<string>source</string>
 	<key>uuid</key>

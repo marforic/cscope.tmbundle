@@ -5,8 +5,6 @@ import os, sys
 # TODO use subprocess instead
 from popen2 import popen2
 
-# TODO remove the HTML window to open up
-
 def build():
 	os.chdir(os.environ['TM_PROJECT_DIRECTORY'])
 	# TODO cleanup
@@ -27,7 +25,6 @@ def get(search):
 	cmd = CSCOPE_BIN + ' -d -L -' + CSCOPE_COMMAND + '"' + search + '"'
 	cscope_out, cscope_in = popen2(cmd)
 	return cscope_out
-
 
 # TODO replace HTML rendering with something else
 def render_html(search, cscope_out):
@@ -60,7 +57,6 @@ def render_html(search, cscope_out):
 
 	print '</table>'
 	print '</body></html>'
-
 
 def choice(cscope_out):
 
@@ -95,6 +91,9 @@ def choice(cscope_out):
 
 if __name__ == '__main__':
     
+	sys.path.append('/Applications/TextMate.app/Contents/SharedSupport/Support/lib')
+	import dialog
+
 	CSCOPE_BIN = '"' + os.environ['TM_BUNDLE_SUPPORT'] + '/bin/cscope"'
 	CSCOPE_COMMAND = os.environ['CSCOPE_COMMAND']
 	CSCOPE_DIR = os.environ.get('TM_CSCOPE_DIR') or os.environ['TM_PROJECT_DIRECTORY']
@@ -104,13 +103,13 @@ if __name__ == '__main__':
 	if int(CSCOPE_COMMAND) == -1:
 		build()
 		exit(0)
-    
-	# TODO: handle filenames
-	# search = os.environ['TM_FILENAME']
+
 	# up to now the only command for which we want to use the filenames is the find #includes
 	try:
 		if (int(CSCOPE_COMMAND) == 8):
 			search = os.environ['TM_FILENAME']
+		elif (int(CSCOPE_COMMAND) == 0):
+			search = dialog.get_string(title="Find C Symbol", prompt="Symbol:")
 		else:
 			search = os.environ.get('TM_SELECTED_TEXT') or os.environ['TM_CURRENT_WORD']
 	except:
@@ -120,7 +119,7 @@ if __name__ == '__main__':
 	cscope_out = get(search)
 
 	# TODO optionally configure HTML output??
-	# render_html(search, cscope_out)
+ 	# render_html(search, cscope_out)
   
 	try:
 		path, line = choice(cscope_out)
@@ -128,9 +127,11 @@ if __name__ == '__main__':
 		print 'Can\'t find "%s"' % search
 		exit(1)
 	except TypeError:
-		print 'No file selected'
+		# With the output as ToolTip we don't want to print this in case the user presses ESC
+		#print 'No file selected'
 		exit(1)
 
 	tm_open(path, line)
       
 	# TODO doctests
+  
