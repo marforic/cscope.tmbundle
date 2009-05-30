@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>beforeRunningCommand</key>
+	<string>nop</string>
+	<key>command</key>
+	<string>CSCOPE_COMMAND=6 python "$TM_BUNDLE_SUPPORT/bin/cscope_bindings.py"</string>
+	<key>input</key>
+	<string>none</string>
+	<key>keyEquivalent</key>
+	<string>^e</string>
+	<key>name</key>
+	<string>Find this egrep pattern</string>
+	<key>output</key>
+	<string>showAsTooltip</string>
+	<key>scope</key>
+	<string>source</string>
+	<key>uuid</key>
+	<string>013EEC54-6413-4099-9B5B-4DD9E19AA91F</string>
+</dict>
+</plist>
