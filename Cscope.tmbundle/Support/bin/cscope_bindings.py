@@ -105,7 +105,6 @@ if __name__ == '__main__':
 		exit(0)
 
 	# up to now the only command for which we want to use the filenames is the find #includes
-	# TODO: check if search == NoneType (i.e. if user presses ESC when dialog open)
 	# TODO: beautify the elif, maybe using an helper function?
 	try:
 		if (int(CSCOPE_COMMAND) == 8):
@@ -124,6 +123,9 @@ if __name__ == '__main__':
 		print 'No word selected'
 		exit(1)
   
+    if not search:
+        exit(1)
+
 	cscope_out = get(search)
 
 	# TODO optionally configure HTML output??
