@@ -105,11 +105,19 @@ if __name__ == '__main__':
 		exit(0)
 
 	# up to now the only command for which we want to use the filenames is the find #includes
+	# TODO: check if search == NoneType (i.e. if user presses ESC when dialog open)
+	# TODO: beautify the elif, maybe using an helper function?
 	try:
 		if (int(CSCOPE_COMMAND) == 8):
 			search = os.environ['TM_FILENAME']
 		elif (int(CSCOPE_COMMAND) == 0):
 			search = dialog.get_string(title="Find C Symbol", prompt="Symbol:")
+		elif (int(CSCOPE_COMMAND) == 4):
+			search = dialog.get_string(title="Find this string text", prompt="Text:")
+		elif (int(CSCOPE_COMMAND) == 6):
+			search = dialog.get_string(title="Find this egrep expression", prompt="Regexp:")
+		elif (int(CSCOPE_COMMAND) == 7):
+			search = dialog.get_string(title="Find this file", prompt="Filename:")
 		else:
 			search = os.environ.get('TM_SELECTED_TEXT') or os.environ['TM_CURRENT_WORD']
 	except:

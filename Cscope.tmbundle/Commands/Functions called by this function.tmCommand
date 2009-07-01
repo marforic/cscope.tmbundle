@@ -11,7 +11,7 @@
 	<key>input</key>
 	<string>selection</string>
 	<key>keyEquivalent</key>
-	<string>^f</string>
+	<string>^d</string>
 	<key>name</key>
 	<string>Functions called by this function</string>
 	<key>output</key>
