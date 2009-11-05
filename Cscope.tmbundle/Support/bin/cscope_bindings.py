@@ -2,29 +2,111 @@
 #!/usr/bin/python
 
 import os, sys
-# TODO use subprocess instead
-from popen2 import popen2
+
+try:
+    import subprocess
+except ImportError:
+    subprocess = None
+    from popen2 import popen2
+
+# Add TextMate's support library to path and import the dialog module
+# which we use to communicate back to TextMate
+sys.path.append(os.path.join(os.environ['TM_SUPPORT_PATH'], "lib"))
+import dialog
+
+CSCOPE_FILE_LIST    = "tm_cscope.files"
+CSCOPE_BIN          = os.path.join(os.environ['TM_BUNDLE_SUPPORT'], "bin", "cscope")
+CSCOPE_COMMAND      = os.environ['CSCOPE_COMMAND']
+CSCOPE_DIR          = os.environ.get('TM_CSCOPE_DIR') or os.environ['TM_PROJECT_DIRECTORY']
+
+TEXTMATE_CMD        = ["mate", "-a"]
+FILE_LIST_CMD       = ["find", ".", "-name", "*.c", "-o", "-name", "*.h",
+                    "-o", "-name", "*.m", "-o", "-name", "*.java", "-o", "-name", "*.py"]
+CSCOPE_BUILD_CMD    = [CSCOPE_BIN, "-i", CSCOPE_FILE_LIST, "-b"]
+CSCOPE_RUN_CMD      = [CSCOPE_BIN, '-d', '-L']
+
+
+def run_cmd(cmd):
+    """
+    Run command and return a stdout iterable.
+    """
+    if not subprocess:
+        return run_cmd_popen2(cmd)
+
+    output = []
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, cwd=CSCOPE_DIR)
+    for line in p.stdout:
+        output.append(line)
+
+    return p.wait(), output
+
+def run_cmd_popen2(cmd):
+    """
+    Run command using popen2 and return a dummy exit code an stdout iterable
+
+    This is only here to support Python version without the subprocess module
+    """
+    os.chdir(CSCOPE_DIR)
+    output = []
+    stdout, stdin = popen2(prepare_popen2_cmd(cmd))
+
+    for line in stdout:
+        output.append(line)
+    return 0, output
+
+def prepare_popen2_cmd(cmd):
+    """
+    When using subprocess we want out command line and arguments to be
+    specified as a list or tuple, but that doesn't quite work with
+    popen2 or os.system. This function is by no means safe as we only
+    join the arguments with a space and escape space/star.
+    """
+    cmd = [x.replace(" ", "\\ ") for x in cmd]
+    cmd = [x.replace("*", "\\*") for x in cmd]
+    return " ".join(cmd)
 
 def build():
-    os.chdir(os.environ['TM_PROJECT_DIRECTORY'])
-    # TODO cleanup
-    # has to be cscope.files for cscope to use it, or the -i flag should be used: i.e. cscope -i tm_cscope.files
-    find_cmd = "find . -name \\*\.c -o -name \\*\.h -o -name \\*\.m -o -name \\*\.java -o -name \\*\.py > tm_cscope.files;"
-    # TODO return value
-    os.system(find_cmd + CSCOPE_BIN + " -i tm_cscope.files -b;")
+    """
+    Build/rebuild the Cscope database
+    """
+    
+    # First, we build a list of files for cscope to use. In a perfect world
+    # we'd just use subprocess and pipe the stdout straight to a file, rather
+    # than buffering everything up and then writing to file. But oh, well.
+    exit_code, output = run_cmd(FILE_LIST_CMD)
+    if exit_code:
+        # TODO: Add some detail to the error message, such as what the user
+        # could do about it.
+        raise RuntimeError("Could not generate list of files for Cscope (%s: %s)" % (exit_code, output))
+
+    file_list = file(os.path.join(CSCOPE_DIR, CSCOPE_FILE_LIST), "w")
+    file_list.write("".join(output))
+    file_list.close()
+
+    # Then, we build the actual database
+    exit_code, output = run_cmd(CSCOPE_BUILD_CMD)
+    if exit_code:
+        raise RuntimeError("Could not generate Cscope database (%s: %s)" % (exit_code, output))
+
     print 'Cscope DB built'
 
-def tm_open(path, line):
-    cmd = 'mate -a ' + CSCOPE_DIR + '/' + path + ' --line=' + line
-    cscope_out, cscope_in = popen2(cmd)
-    return cscope_out
+def tm_open(filename, line):
+    """
+    Open the file in TextMate at the specified line
+    """
+    cmd = TEXTMATE_CMD + [os.path.join(CSCOPE_DIR, filename), "--line=%s" % line]
+    run_cmd(cmd)
 
-def get(search):
-    os.chdir(CSCOPE_DIR)
-    # TODO cleanup
-    cmd = CSCOPE_BIN + ' -d -L -' + CSCOPE_COMMAND + '"' + search + '"'
-    cscope_out, cscope_in = popen2(cmd)
-    return cscope_out
+def run_cscope(search):
+    """
+    Run the requested Cscope command and return the command output
+    """
+    cmd = CSCOPE_RUN_CMD + ['-%s' % CSCOPE_COMMAND, search]
+    exit_code, output = run_cmd(cmd)
+    if exit_code:
+        raise RuntimeError("Could not run Cscope (exit code: %s)" % exit_code)
+    return output
+
 
 # TODO replace HTML rendering with something else
 def render_html(search, cscope_out):
@@ -58,18 +140,17 @@ def render_html(search, cscope_out):
     print '</table>'
     print '</body></html>'
 
-def choice(cscope_out):
-
-    # TODO why isn't this in TM_SUPPORT_PATH??
-    # sys.path.append(os.environ['TM_SUPPORT_PATH'])
-    sys.path.append('/Applications/TextMate.app/Contents/SharedSupport/Support/lib')
-    import dialog
-
+def choice_menu(cscope_out):
+    """
+    Display a dialog menu in TextMate with Cscope's output and wait for the
+    user to choose a file to open.
+    """
     paths = []
-    for i in cscope_out.readlines():    
-        path, func, line, rest = i.split(' ', 3)
+    for line in cscope_out:
+        # TODO: What if the file has a space in its name? Switch to regexp?
+        path, func, line, rest = line.split(' ', 3)
     
-        # filter out current file
+        # Filter out current file
         if path in os.environ['TM_FILEPATH'] and line == os.environ['TM_LINE_NUMBER']:
             continue    
     
@@ -82,6 +163,7 @@ def choice(cscope_out):
     # TODO sort global def to top, local appearances
     paths.sort(key=lambda x: x[0])
   
+    # Display menu dialog in TextMate and wait for a choice
     choice = dialog.menu(paths)
   
     if not choice:
@@ -90,14 +172,6 @@ def choice(cscope_out):
     return choice
 
 if __name__ == '__main__':
-    
-    sys.path.append('/Applications/TextMate.app/Contents/SharedSupport/Support/lib')
-    import dialog
-
-    CSCOPE_BIN = '"' + os.environ['TM_BUNDLE_SUPPORT'] + '/bin/cscope"'
-    CSCOPE_COMMAND = os.environ['CSCOPE_COMMAND']
-    CSCOPE_DIR = os.environ.get('TM_CSCOPE_DIR') or os.environ['TM_PROJECT_DIRECTORY']
-  
     assert int(CSCOPE_COMMAND) in range(-1,9)
   
     if int(CSCOPE_COMMAND) == -1:
@@ -126,13 +200,13 @@ if __name__ == '__main__':
     if not search:
         exit(1)
 
-    cscope_out = get(search)
+    cscope_out = run_cscope(search)
 
     # TODO optionally configure HTML output??
      # render_html(search, cscope_out)
   
     try:
-        path, line = choice(cscope_out)
+        path, line = choice_menu(cscope_out)
     except LookupError:
         print 'Can\'t find "%s"' % search
         exit(1)
@@ -144,4 +218,3 @@ if __name__ == '__main__':
     tm_open(path, line)
       
     # TODO doctests
-  
